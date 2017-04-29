@@ -151,9 +151,9 @@ class NNModel():
         #entropy_loss = lasagne.objectives.categorical_crossentropy(pis, pis).mean()
         
         sq_loss_coef = 0.0
-        entropy_loss_coef = 0.0
+        entropy_loss_coef = 1.0
         #enforce sigmas to be lower than k
-        k = .1
+        k = 4
         #enforce sigma to be smaller than k
         sigma_constrain_term = T.sum((((sigmas + k) + T.abs_(sigmas - k))/2.0) ** 2)
         #enforce sigma to be normal with mu=k
@@ -395,8 +395,8 @@ def toy_data(n_samples=1000):
     return X_train
      
 
-def train(**kwargs):
-    n_gaus_comp = kwargs.get('ncomp', 4)
+def train(args, **kwargs):
+    n_gaus_comp = args.ncomp
     kmeans_mu = kwargs.get('kmeans', False)
     X_train = toy_data(n_samples=10000)
     
@@ -455,7 +455,7 @@ def parse_args(argv):
     parser.add_argument( '-tf', '--tensorflow', action='store_true',  help='if exists run with tensorflow') 
     parser.add_argument( '-autoencoder', '--autoencoder', type=int,  help='the number of autoencoder steps before training', default=0) 
     parser.add_argument( '-grid', '--grid', action='store_true',  help='if exists transforms the input from lat/lon to distance from grids on map')  
-    parser.add_argument( '-ncomp', type=int,  help='the number of bivariate gaussians after the input layer', default=500) 
+    parser.add_argument( '-ncomp', type=int,  help='the number of bivariate gaussians after the input layer', default=4) 
     parser.add_argument( '-m', '--message', type=str) 
     parser.add_argument( '-vbi', '--vbi', type=str,  help='if exists load params from vbi file and visualize bivariate gaussians on a map', default=None)
     parser.add_argument( '-nomdn', '--nomdn', action='store_true',  help='if true use tanh layer instead of MDN') 
@@ -465,5 +465,5 @@ def parse_args(argv):
 if __name__ == '__main__':
     #THEANO_FLAGS='device=cpu' nice -n 10 python loc2lang.py -d ~/datasets/na/processed_data/ -enc utf-8 -reg 0 -drop 0.0 -mindf 200 -hid 1000 -ncomp 100 -autoencoder 100 -map
     args = parse_args(sys.argv[1:])
-    train()
+    train(args)
 
